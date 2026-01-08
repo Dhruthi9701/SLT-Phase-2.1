@@ -4,7 +4,6 @@ import mediapipe as mp
 import os
 import cv2
 
-# Load existing data
 try:
     X_train = np.load("data/X_train_keypoints.npy")
     y_train = np.load("data/y_train_keypoints.npy")
@@ -17,10 +16,8 @@ except Exception as e:
 error_folder = "live_errors"
 processed_file = "processed_images.txt"
 
-# Load class names (phrases) in sorted order
 class_names = sorted(os.listdir("data/images for phrases"))
 
-# Track processed images
 if os.path.exists(processed_file):
     with open(processed_file, "r") as f:
         processed_images = set(line.strip() for line in f)
@@ -51,7 +48,7 @@ for fname in image_files:
         continue
     cv2.imshow("Label this image (type phrase and press Enter)", img)
     print(f"Label for: {img_path}")
-    cv2.waitKey(1)  # Give time for window to render
+    cv2.waitKey(1)
 
     phrase = input("Enter the phrase this gesture belongs to (or type 'skip' to skip): ").strip()
     cv2.destroyAllWindows()
@@ -80,7 +77,6 @@ for fname in image_files:
 
 holistic.close()
 
-# Convert to numpy arrays and append
 if new_keypoints:
     new_keypoints = np.array(new_keypoints)
     valid_new_labels = np.array(valid_new_labels)
@@ -92,11 +88,8 @@ if new_keypoints:
     np.save("data/y_train_keypoints.npy", y_train_updated)
     print(f"Appended {len(new_keypoints)} new keypoints to training data.")
 
-    # Update processed images file
     with open(processed_file, "a") as f:
         for img_path in newly_processed:
             f.write(img_path + "\n")
 else:
     print("No new images were processed.")
-
-
