@@ -4,15 +4,12 @@ import numpy as np
 import glob
 import os
 
-# Path to a few sample images
 sample_images_dir = os.path.join(os.path.dirname(__file__), "images for phrases", "ALL")
 sample_images = []
 for ext in ("*.jpg", "*.png", "*.jpeg"):
     sample_images.extend(glob.glob(os.path.join(sample_images_dir, ext)))
-# Take first 5 images for visualization
 sample_images = sample_images[:5]
 
-# Path to backgrounds
 backgrounds_dir = os.path.join(os.path.dirname(__file__), "..", "backgrounds")
 backgrounds = []
 for ext in ("*.jpg", "*.png", "*.jpeg"):
@@ -20,6 +17,8 @@ for ext in ("*.jpg", "*.png", "*.jpeg"):
 
 mp_selfie = mp.solutions.selfie_segmentation
 segmentor = mp_selfie.SelfieSegmentation(model_selection=1)
+
+
 
 for idx, img_path in enumerate(sample_images):
     img = cv2.imread(img_path)
@@ -33,7 +32,6 @@ for idx, img_path in enumerate(sample_images):
         mask_vis = (mask * 255).astype(np.uint8)
         cv2.imwrite(f"seg_mask_{idx}.png", mask_vis)
         print(f"Saved mask for {img_path} as seg_mask_{idx}.png")
-        # Visualize blended image
         if backgrounds:
             bg_img_path = np.random.choice(backgrounds)
             bg_img = cv2.imread(bg_img_path)
