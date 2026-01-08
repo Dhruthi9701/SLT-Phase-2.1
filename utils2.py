@@ -17,15 +17,10 @@ def log_message(message):
     logging.info(message)
 
 def extract_keypoints_from_image(frame, holistic):
-    """
-    Extracts keypoints from a frame using MediaPipe Holistic.
-    Returns a 1D numpy array of all keypoints (flattened).
-    """
     try:
         img_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         results = holistic.process(img_rgb)
 
-        # Only proceed if at least one hand is detected
         if not results.right_hand_landmarks and not results.left_hand_landmarks:
             return None
 
@@ -60,11 +55,9 @@ def extract_keypoints_from_image(frame, holistic):
         log_message(f"Error extracting keypoints from frame: {e}")
         return None
 
+
+
 def save_live_error_image(image, error_dir="live_errors"):
-    """
-    Saves the given image to the error_dir as error_<number>.png,
-    where <number> is the next available integer.
-    """
     if not os.path.exists(error_dir):
         os.makedirs(error_dir)
     existing = [f for f in os.listdir(error_dir) if f.startswith("error_") and f.endswith(".png")]
@@ -76,14 +69,10 @@ def save_live_error_image(image, error_dir="live_errors"):
     print(f"Saved error image: {filepath}")
 
 def live_prediction_loop(model, class_names, holistic, cap):
-    """
-    Main loop for live prediction using keypoints and MLP.
-    Adds a space to the prediction sentence if no movement is detected for 1 second.
-    """
     last_keypoints = None
     stagnant_start_time = None
     prediction_sentence = ""
-    SPACE_THRESHOLD = 1  # seconds
+    SPACE_THRESHOLD = 1
 
     print("Press 'q' to quit.")
 
@@ -98,19 +87,18 @@ def live_prediction_loop(model, class_names, holistic, cap):
 
         if keypoints is not None:
             keypoints = keypoints.flatten()
-            # Movement detection
             if last_keypoints is not None:
                 movement = np.linalg.norm(keypoints - last_keypoints)
-                if movement < 1e-3:  # No significant movement
+                if movement < 1e-3:
                     if stagnant_start_time is None:
                         stagnant_start_time = time.time()
                     elif time.time() - stagnant_start_time > SPACE_THRESHOLD:
                         if not prediction_sentence.endswith(" "):
                             prediction_sentence += " "
                             print("Space added due to no movement.")
-                        stagnant_start_time = None  # Reset after adding space
+                        stagnant_start_time = None
                 else:
-                    stagnant_start_time = None  # Reset if movement detected
+                    stagnant_start_time = None
             last_keypoints = keypoints.copy()
 
             keypoints = keypoints.reshape(1, -1)
@@ -136,7 +124,7 @@ def live_prediction_loop(model, class_names, holistic, cap):
         key = cv2.waitKey(1) & 0xFF
         if key == ord('q'):
             break
-        elif key == 13:  # Enter key
+        elif key == 13:
             prediction_sentence = ""
             print("New sentence started.")
 
