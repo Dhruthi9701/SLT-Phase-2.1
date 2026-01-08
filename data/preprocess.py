@@ -25,36 +25,33 @@ def extract_all_keypoints(image_path, holistic, segmentor=None, backgrounds=None
             print(f"Warning: Could not read image {image_path}. Skipping.")
             return None
 
-        # Background augmentation is now commented out and not used
-
+       
         img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         results = holistic.process(img_rgb)
 
-        # Right hand (21x3)
+       
         right_hand = np.zeros((21, 3), dtype=np.float32)
         if results.right_hand_landmarks:
             for i, lm in enumerate(results.right_hand_landmarks.landmark):
                 right_hand[i] = [lm.x, lm.y, lm.z]
 
-        # Left hand (21x3)
         left_hand = np.zeros((21, 3), dtype=np.float32)
         if results.left_hand_landmarks:
             for i, lm in enumerate(results.left_hand_landmarks.landmark):
                 left_hand[i] = [lm.x, lm.y, lm.z]
 
-        # Pose (33x4)
+    
         pose = np.zeros((33, 4), dtype=np.float32)
         if results.pose_landmarks:
             for i, lm in enumerate(results.pose_landmarks.landmark):
                 pose[i] = [lm.x, lm.y, lm.z, lm.visibility]
 
-        # Face (468x3)
+  
         face = np.zeros((468, 3), dtype=np.float32)
         if results.face_landmarks:
             for i, lm in enumerate(results.face_landmarks.landmark):
                 face[i] = [lm.x, lm.y, lm.z]
 
-        # Flatten all and concatenate
         feature_vector = np.concatenate([
             right_hand.flatten(),
             left_hand.flatten(),
@@ -103,10 +100,9 @@ if __name__ == "__main__":
     print(f"Found {len(images)} images belonging to {len(class_names)} classes.")
     print("Class folders found:", class_names)
 
-    # Extract keypoints with error handling
+
     X_keypoints, y = extract_keypoints_dataset(images, labels)
 
-    # Split and save
     X_train, X_test, y_train, y_test = train_test_split(X_keypoints, y, test_size=0.2, random_state=42)
 
     print("Saving .npy files to:", current_dir)
